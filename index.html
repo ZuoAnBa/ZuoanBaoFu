@@ -1,0 +1,1791 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>暴富！发发发！</title>
+    <style>
+        /*      全局样式*/
+        /*使用 Arial 字体，保证统一外观。*/
+        body {
+            font-family: Arial;
+        }
+        /*所有输入框文字居中*/
+        input {
+            text-align: center;
+        }
+        /*鼠标悬停在按钮上时显示手型。*/
+        button {
+            cursor: pointer;
+        }
+        /*所有 <textarea > 都固定 宽 180px，高 80px。*/
+        textarea {
+            width: 180px;
+            height: 80px;
+        }
+        /*水平排列元素，间距 10px，高度统一。*/
+        .top {
+            display: flex;
+            gap: 10px;
+            align-items: stretch; /* 高度统一 */
+        }
+        /* 左侧整体 */
+        .leftArea {
+            display: flex;
+            flex-direction: column;
+        }
+        /* 右侧区域 */
+        .rightArea {
+            display: flex;
+            flex-direction: column;
+        }
+        /*阈值容器 */
+        .thresholdBox {
+            display: flex; /*将容器变成 Flex 布局。 默认方向是 水平排列（row）里面的子元素（比如按钮、输入框、文本框）会 排成一行*/
+            gap: 5px; /*水平间距是 5px。*/
+        }
+        /*特定容器 */
+        #history,
+        #Threshold_UpOut,
+        #Threshold_UpOut1,
+        #RuleTemp {
+            width: 180px; /* 宽高：和 textarea 一样 180×80px。*/
+            height: 80px; /* 宽高：和 textarea 一样 180×80px。*/
+            border: 1px solid #aaa; /*边框：浅灰色 #aaa。*/
+            overflow-y: auto; /* 垂直滚动：overflow-y: auto; 当内容超出高度时自动出现滚动条。*/
+            list-style: none; /*列表样式：list-style: none; 去掉默认的列表点。*/
+            padding: 4px; /*内边距：padding: 4px; 保证内容不紧贴边框。*/
+            margin: 0; /*外边距：margin: 0; 避免默认间距。*/
+            font-size: 12px; /* 字体大小：12px。*/
+        }
+
+        .limitLabel {
+            width: 100px;
+            height: 20px;
+            line-height: 23px; /* 文字垂直居中 */
+            text-align: center;
+            border: none; /* 关键：不要边框 */
+            font-weight: bold;
+        }
+
+        /* 下面一行 */
+        .bottomRow {
+            display: flex;
+        }
+
+        /* 输入框 */
+        .limitInput {
+            width: 50px;
+            height: 20px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        /* 导出按钮 */
+        .exportBtn {
+            width: 50px;
+            height: 20px;
+        }
+
+        
+
+        /* 复制 / 导入 */
+        .copyBtn,
+        .importBtn {
+            width: 43px;
+            height: 40px;
+        }
+
+
+        
+        .ruleBox {
+            display: grid;
+            grid-template-columns: 200px 60px; /* 左输入框，右按钮 */
+            grid-template-rows: 90px auto;
+            gap: 5px;
+        }
+        /* 输入框 */
+        #txtRule {
+            width: 180px;
+            height: 80px;
+        }
+        /* 右侧按钮竖排 */
+        .rightBtns {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .rightBtns button {
+            width: 60px;
+            height: 25px;
+        }
+
+        /* 底部按钮横排 */
+        .bottomBtns {
+            grid-column: 1 / 3; /* 横跨两列 */
+            display: flex;
+            gap: 8px;
+        }
+        .bottomBtns button {
+            width: 60px;
+            height: 25px;
+        }
+        /* 单独放大 纳入总数 */
+        #btnAddToTotal {
+            width: 80px;
+            white-space: nowrap;
+        }
+        .totalRow {
+            margin-top: 0px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .totalRow input {
+            width: 65px;
+            text-align: center;
+        }
+
+        /* 表格 */
+        #dataTable {
+            margin-top: 0px;
+            border-collapse: collapse;
+            width: 270px; /* 必须 >= 所有列之和 */
+        }
+
+        #dataTable th, #dataTable td {
+            border: 1px solid #666;
+            padding: 4px;
+            text-align: center;
+        }
+
+            /* 新澳 / 老澳 / 香港（放大） */
+            #dataTable th:nth-child(odd),
+            #dataTable td:nth-child(odd) {
+                width: 10px;
+            }
+
+            /* 大小（缩小） */
+            #dataTable th:nth-child(even),
+            #dataTable td:nth-child(even) {
+                width: 80px;
+            }
+            
+
+        /* 新澳（绿） */
+        .col-new {
+            background-color: #90ee90;
+        }
+
+        /* 老澳（灰） */
+        .col-old {
+            background-color: #e0e0e0;
+        }
+
+        /* 香港（粉） */
+        .col-hk {
+            background-color: #ffb6c1;
+        }
+
+
+        .main {
+            display: grid;
+            grid-template-columns: 260px 0.2fr;
+            gap: 20px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+
+        }
+
+        td, th {
+            border: 1px solid #999;
+            text-align: center;
+        }
+  
+            /* 盈利 */
+        /* 只让中奖号码的input显示边框，其它input去掉边框 */
+        td input {
+            border: none;
+            text-align: center;
+            background-color: transparent; /* 背景透明，看起来像普通文本 */
+            width: 100%;
+            box-sizing: border-box;
+        }
+        /* 中奖号码专用 */
+            td input#WinNum1,
+            td input#WinNum2,
+            td input#WinNum3,
+            td input#totalNum {
+                border: 1px solid #999;
+                background-color: #fff;
+                border-radius: 3px;
+                padding: 2px 4px;
+            }
+        /*#dataTable td, #dataTable th {
+            height: 40px;*/ /* 统一行高 */
+        /*}*/
+
+        #dataTable td input {
+            height: 40px;
+        }
+        /* 针对第一列按钮列：操作 */
+        #dataTable td:nth-child(1) button {
+            height: 40px; /* 按钮高度 */
+            font-size: 16px; /* 字体大小可选 */
+        }
+
+        /* 针对第二列奖池（span） */
+        #dataTable td:nth-child(2) span {
+            display: inline-block;
+            height: 36px; /* 高度 */
+            line-height: 36px; /* 文字居中 */
+        }
+
+        /* 针对第三列中奖号码（input） */
+        #dataTable td:nth-child(3) input {
+            height: 36px; /* 输入框高度 */
+            font-size: 16px; /* 字体大小 */
+        }
+
+        .numbers {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            grid-template-rows: repeat(5, 1fr);
+            gap: 4px;
+        }
+
+        .cell {
+            border: 1px solid #aaa;
+            text-align: center;
+            min-height: 50px;
+            background-color: lightyellow; /* 初始背景色 */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 5px;
+        }
+
+
+        .highlight {
+            background-color: #90ee90 !important; /* 绿色高亮 */
+            font-weight: bold;
+        }
+
+
+        .bottom {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: 120px 80px 120px 120px 120px 120px 120px;
+            gap: 5px;
+            padding: 2px 5px;
+        }
+
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(0,0,0,0.5);
+
+            justify-content: flex-start; /* 靠左 */
+            align-items: flex-start; /* 不再垂直居中 */
+
+            padding-left: 20px; /* 左边留空 */
+            padding-top:150px; /* 往下挪一点点（这里调这个值） */
+
+            z-index: 1000;
+            box-sizing: border-box;
+        }
+
+        .modal-content {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            max-width: 95%; /* 自适应屏幕宽度 */
+            width: 320px; /* 最大宽度可微调 */
+            min-width: 180px; /* 手机屏幕小也能显示 */
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        .modal-buttons {
+            margin-top: 15px;
+        }
+
+        .modal-buttons button {
+            margin: 5px;
+            padding: 10px 18px;
+            font-size: 16px;
+            border-radius: 6px;
+        }
+
+        /* ===== 开奖显示用样式 ===== */
+        .row {
+            margin: 8px 0;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .label {
+            width: 50px;
+        }
+
+        .num {
+            width: 38px;
+            margin: 2px;
+            text-align: center;
+            font-weight: bold;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+
+        .red {
+            background: #ffdddd;
+            color: #b00000;
+        }
+
+        .blue {
+            background: #dde8ff;
+            color: #0033aa;
+        }
+
+        .green {
+            background: #ddffea;
+            color: #006633;
+        }
+
+        .yellow {
+            background: #fff6cc;
+            color: #aa7700;
+        }
+
+        .plus {
+            margin: 0 6px;
+            font-weight: bold;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="top">
+        <div class="ruleBox">
+
+            <textarea id="txtRule"></textarea>
+
+            <!-- 右边三个 -->
+            <div class="rightBtns">
+                <button id="btnRun">执行</button>
+                <button id="btnUndo">撤回</button>
+                <button id="btnCleartxtRule">粘贴</button>
+            </div>
+
+            <!-- 下面三个 -->
+            <div class="bottomBtns">
+                <button id="btnNewao">新澳</button>
+                <button id="btnOldao">老澳</button>
+                <button id="btnXianggang">香港</button>
+                <button id="btnAddToTotal">纳入总数</button>
+
+            </div>
+
+        </div>
+        <!-- 右侧历史记录 -->
+        <div class="historyArea">
+
+            <!-- 历史记录 -->
+            <ul id="history"></ul>
+
+            <!-- 阈值操作区 -->
+            <div class="thresholdBox">
+                <div class="leftArea">
+                    <div class="limitLabel">阈值上限</div>
+
+                    <div class="bottomRow">
+                        <input type="text" id="thresholdInput" class="limitInput" value="400">
+                        <button class="exportBtn" id="btnExport">导出</button>
+                    </div>
+                </div>
+
+                <div class="rightArea">
+                    <button class="copyBtn" id="btnCopy">复制</button>
+                </div>
+                <div class="rightArea">
+                    <button class="importBtn" id="btnImport">导入</button>
+                </div>
+            </div>
+
+        </div>
+        <textarea id="RuleTemp" readonly rows="4" cols="30"></textarea>
+
+        <textarea id="Threshold_UpOut" rows="10" cols="20" readonly></textarea>
+        <textarea id="Threshold_UpOut1" rows="10" cols="20" readonly></textarea>
+
+
+
+
+    </div>
+
+    <div class="totalRow">
+        <label>本次：</label>
+        <input type="text" id="txtCurrentTotal" readonly>
+
+        <label>累计：</label>
+        <input type="text" id="txtAllTotal" readonly>
+    </div>
+
+    <div class="main">
+        <!-- 右边 排序表 -->
+        <table id="dataTable">
+            <thead>
+                <tr>
+                    <th>新澳</th>
+                    <th>大小</th>
+                    <th>老澳</th>
+                    <th>大小</th>
+                    <th>香港</th>
+                    <th>大小</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+        <!-- 左边 49格 -->
+        <div class="numbers" id="numbers"></div>
+    </div>
+
+
+    <!-- 确认弹窗 -->
+    <div id="customConfirm" class="modal">
+        <div class="modal-content">
+            <p id="confirmText"></p>
+            <div class="modal-buttons">
+                <button id="confirmOk">确定</button>
+                <button id="confirmCancel">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 提示弹窗 -->
+    <div id="customAlert" class="modal">
+        <div class="modal-content">
+            <p id="alertText"></p>
+            <div class="modal-buttons">
+                <button id="alertOk">确定</button>
+            </div>
+        </div>
+    </div>
+
+
+    <table id="dataTable" style="width: 666px; table-layout: fixed;">
+        <thead>
+            <tr>
+                <th style="width:80px;">操作</th>
+                <th style="width:50px;">奖池</th>
+                <th style="width:40px;">中奖号码</th>
+                <th style="width:80px;">中奖大小</th>
+                <th style="width:80px;">中奖总数</th>
+                <th style="width:80px;">奖池总数</th>
+                <th style="width:80px;">应给点水</th>
+                <th style="width:80px;">盈利</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            <tr>
+
+                <td><button id="btnClearCurrent">清空当前</button></td>
+                <td><span style="display:inline-block; padding:0 5px;">新澳</span></td>
+                <td><input type="text" id="WinNum1"></td>
+                <td><input type="number" id="WinSize1" value="0" readonly></td>
+                <td><input type="number" id="WinPrizeSum1" value="0" readonly></td>
+                <td><input type="number" id="WinTotal1" value="0" readonly></td>
+                <td><input type="number" id="WinWater1" value="0" readonly></td>
+                <td><input type="number" id="WinMoney1" value="0" readonly></td>
+            </tr>
+            <tr>
+
+                <td><button id="btnClearAll">清空所有</button></td>
+                <td><span style="display:inline-block; padding:0 5px;">老澳</span></td>
+                <td><input type="text" id="WinNum2"></td>
+                <td><input type="number" id="WinSize2" value="0" readonly></td>
+                <td><input type="number" id="WinPrizeSum2" value="0" readonly></td>
+                <td><input type="number" id="WinTotal2" value="0" readonly></td>
+                <td><input type="number" id="WinWater2" value="0" readonly></td>
+                <td><input type="number" id="WinMoney2" value="0" readonly></td>
+            </tr>
+            <tr>
+                <td> <button id="btn">获取开奖</button></td>
+                <td><span style="display:inline-block; padding:0 5px;">香港</span></td>
+                <td><input type="text" id="WinNum3"></td>
+                <td><input type="number" id="WinSize3" value="0" readonly></td>
+                <td><input type="number" id="WinPrizeSum3" value="0" readonly></td>
+                <td><input type="number" id="WinTotal3" value="0" readonly></td>
+                <td><input type="number" id="WinWater3" value="0" readonly></td>
+                <td><input type="number" id="WinMoney3" value="0" readonly></td>
+            </tr>
+            <tr>
+                <td><button onclick="draw()">开奖</button></td>
+                <td><span style="display:inline-block; padding:0 5px;">总数</span></td>
+                <td>      </td>
+                <td><input type="number" id="AllFinallyWinPrizeSise" value="0" readonly></td>
+                <td><input type="number" id="AllFinallyWinPrizeSum" value="0" readonly></td>
+                <td><input type="number" id="AllFinallyWinTotal" value="0" readonly></td>
+                <td><input type="number" id="AllFinallywater" value="0" readonly></td>
+                <td><input type="number" id="AllFinallyWinFinallyMoney" value="0" readonly></td>
+            </tr>
+        </tbody>
+
+    </table>
+
+   
+    <div id="result"></div>
+    <script>
+        /*模块定义区 */
+        class ValueModule {
+            constructor() {
+                this.Values = Array(49).fill(0);       // 当前值
+                this.PrevValues = Array(49).fill(0);   // 历史值
+                this.LastDelta = Array(49).fill(0);    // 本次增量
+                this.CurrentSum = 0;                    // 本次总和
+                this.ErrorSum = 0;                      // 自定义总和
+                this.TureSum = 0;                       // 正确总和
+                this.TotalSum = 0;                       // 奖池总和
+                this.WinData = Array(49).fill(0);      // 预测中奖号码
+
+                this.WinPrizeNum = 0;                   // 中奖号码
+                this.WinPrizeSise = 0;                  // 中奖大小
+                this.WinPrizeSum = 0;                   // 中奖总额
+                this.water = 0;                         // 给点水
+                this.WinFinallyMoney = 0;               // 最终盈利
+                this.HisRuleText = "";
+            }
+            clear() {
+                this.Values.fill(0);
+                this.PrevValues.fill(0);
+                this.LastDelta.fill(0);
+                this.WinData.fill(0);
+                this.CurrentSum = 0;
+                this.ErrorSum = 0;
+                this.TureSum = 0;
+                this.TotalSum = 0;
+                this.WinPrizeNum = 0;
+                this.WinPrizeSise = 0;
+                this.WinPrizeSum = 0;
+                this.water = 0;
+                this.WinFinallyMoney = 0;
+                this.HisRuleText = "";
+            }
+            undo(backup) {
+                this.Values = [...backup.Values];
+                this.PrevValues = [...backup.PrevValues];
+                this.LastDelta = [...backup.LastDelta];
+                this.WinData = [...backup.WinData];
+                this.CurrentSum = backup.CurrentSum;
+                this.ErrorSum = backup.ErrorSum;
+                this.TureSum = backup.TureSum;
+                this.TotalSum = backup.TotalSum;
+                this.WinPrizeNum = backup.WinPrizeNum;
+                this.WinPrizeSise = backup.WinPrizeSise;
+                this.WinPrizeSum = backup.WinPrizeSum;
+                this.water = backup.water;
+                this.WinFinallyMoney = backup.WinFinallyMoney;
+                this.HisRuleText = backup.HisRuleText;  // ✅ 复制规则文本
+            }
+            copyTo(target) {
+                target.Values = [...this.Values];
+                target.PrevValues = [...this.PrevValues];
+                target.LastDelta = [...this.LastDelta];
+                target.WinData = [...this.WinData];
+                target.CurrentSum = this.CurrentSum;
+                target.ErrorSum = this.ErrorSum;
+                target.TureSum = this.TureSum;
+                target.TotalSum = this.TotalSum;
+                target.WinPrizeNum = this.WinPrizeNum;
+                target.WinPrizeSise = this.WinPrizeSise;
+                target.WinPrizeSum = this.WinPrizeSum;
+                target.water = this.water;
+                target.WinFinallyMoney = this.WinFinallyMoney;
+                target.HisRuleText = this.HisRuleText; // ✅ 复制规则文本
+            }
+            applyDelta(deltaNums, value) {
+                this.LastDelta.fill(0);
+                this.CurrentSum = 0;
+                deltaNums.forEach(n => {
+                    if (n >= 1 && n <= 49) {
+                        const i = n - 1;
+                        this.Values[i] += value;
+                        this.LastDelta[i] += value;
+                        this.CurrentSum += value;
+                        this.TotalSum += value;
+                    }
+                });
+            }
+        }
+        /*变量定义区域*/
+        // 波色与生肖
+        const 红波 = [1, 2, 7, 8, 12, 13, 18, 19, 23, 24, 29, 30, 34, 35, 40, 45, 46];
+        const 蓝波 = [3, 4, 9, 10, 14, 15, 20, 25, 26, 31, 36, 37, 41, 42, 47, 48];
+        const 绿波 = [5, 6, 11, 16, 17, 21, 22, 27, 28, 32, 33, 38, 39, 43, 44, 49];
+        const animals = ["马", "蛇", "龙", "兔", "虎", "牛", "鼠", "猪", "狗", "鸡", "猴", "羊"];
+        const historyList = document.getElementById("history");
+        // 枚举
+        const FuncMode = { Newao: 0, Oldao: 1, Xianggang: 2, FuncModeCNT: 3 };
+        // 容器
+        const numbers = document.getElementById("numbers");
+        const cells = [];
+        // 模式数据
+        const ModeDataCNT = 6;
+        const FuncModeDataCNT = FuncMode.FuncModeCNT * ModeDataCNT;
+        let CurrentMode = FuncMode.Newao;
+        let RuleIndexNum = 0;
+        // 多模式模块
+        // 多模式模块
+        const module = [];
+        for (let i = 0; i < FuncModeDataCNT; i++) {
+            module.push(new ValueModule()); // ✅ 每个元素都有 undo、clear 等方法
+        }
+        // 生成格子
+        for (let i = 0; i < 49; i++) {
+            const d = document.createElement("div");
+            d.className = "cell";
+            d.style.backgroundColor = "lightyellow";
+            d.style.fontWeight = "bold";
+            d.style.fontFamily = "微软雅黑";
+            d.style.fontSize = "14px";
+            d.style.textAlign = "center";
+            d.style.display = "flex";
+            d.style.flexDirection = "column";
+            d.style.justifyContent = "center";
+            d.style.padding = "5px";
+            d.innerHTML = `${(i + 1).toString().padStart(2, "0")} ${animals[i % 12]}<br>0<br>0`;
+            numbers.appendChild(d);
+            cells.push(d);
+        }
+       
+
+        //数据加载回复函数
+        window.addEventListener("DOMContentLoaded", () => {
+            // 读取 module
+            const savedModule = localStorage.getItem("module");
+            if (savedModule) {
+                const arr = JSON.parse(savedModule);
+                arr.forEach((m, i) => {
+                    if (module[i]) {
+                        module[i].Values = m.Values;
+                        module[i].PrevValues = m.PrevValues;
+                        module[i].LastDelta = m.LastDelta;
+                        module[i].CurrentSum = m.CurrentSum;
+                        module[i].ErrorSum = m.ErrorSum;
+                        module[i].TureSum = m.TureSum;
+                        module[i].TotalSum = m.TotalSum;
+                        module[i].WinData = m.WinData;
+                        module[i].WinPrizeNum = m.WinPrizeNum;
+                        module[i].WinPrizeSise = m.WinPrizeSise;
+                        module[i].WinPrizeSum = m.WinPrizeSum;
+                        module[i].water = m.water;
+                        module[i].WinFinallyMoney = m.WinFinallyMoney;
+                        module[i].HisRuleText = m.HisRuleText;
+                    }
+                });
+            }
+            // 恢复 txtRule
+            const savedRule = localStorage.getItem("txtRule");
+            if (savedRule) {
+                document.getElementById("txtRule").value = savedRule;
+            }
+            // 恢复阈值输入
+            const savedThreshold = localStorage.getItem("Threshold_UpOut");
+            if (savedThreshold) {
+                document.getElementById("Threshold_UpOut").textContent = savedThreshold;
+            }
+            const savedThreshold1 = localStorage.getItem("Threshold_UpOut1");
+            if (savedThreshold1) {
+                document.getElementById("Threshold_UpOut1").textContent = savedThreshold1;
+            }
+            // 调用显示函数刷新界面
+            refreshUI();
+        });
+        // 页面关闭/刷新时保存 module 数据
+        window.addEventListener("beforeunload", () => {
+            try {
+                // 只保存对象的可序列化属性，不保存方法
+                const saveData = module.map(m => ({
+                    Values: m.Values,
+                    PrevValues: m.PrevValues,
+                    LastDelta: m.LastDelta,
+                    CurrentSum: m.CurrentSum,
+                    ErrorSum: m.ErrorSum,
+                    TureSum: m.TureSum,
+                    TotalSum: m.TotalSum,
+                    WinData: m.WinData,
+                    WinPrizeNum: m.WinPrizeNum,
+                    WinPrizeSise: m.WinPrizeSise,
+                    WinPrizeSum: m.WinPrizeSum,
+                    water: m.water,
+                    WinFinallyMoney: m.WinFinallyMoney,
+                    HisRuleText: m.HisRuleText
+                }));
+                localStorage.setItem("module", JSON.stringify(saveData));
+            } catch (e) {
+                console.error("保存 module 数据失败:", e);
+            }
+        });
+        function saveModule() {
+            try {
+                const saveData = module.map(m => ({
+                    Values: m.Values,
+                    PrevValues: m.PrevValues,
+                    LastDelta: m.LastDelta,
+                    CurrentSum: m.CurrentSum,
+                    ErrorSum: m.ErrorSum,
+                    TureSum: m.TureSum,
+                    TotalSum: m.TotalSum,
+                    WinData: m.WinData,
+                    WinPrizeNum: m.WinPrizeNum,
+                    WinPrizeSise: m.WinPrizeSise,
+                    WinPrizeSum: m.WinPrizeSum,
+                    water: m.water,
+                    WinFinallyMoney: m.WinFinallyMoney,
+                    HisRuleText: m.HisRuleText
+                }));
+                localStorage.setItem("module", JSON.stringify(saveData));
+                localStorage.setItem("txtRule", document.getElementById("txtRule").value);
+                localStorage.setItem("Threshold_UpOut", document.getElementById("Threshold_UpOut").value);
+                localStorage.setItem("Threshold_UpOut1", document.getElementById("Threshold_UpOut1").value);
+                console.log("已自动保存");
+            } catch (e) {
+                console.error("保存失败:", e);
+            }
+        }
+
+        // 刷新界面
+        function refreshUI() {
+            // 获取当前模式模块
+            const m = module[CurrentMode * ModeDataCNT];
+            for (let i = 0; i < 49; i++) {
+                // 判断本次增量
+                const changed = m.LastDelta[i] !== 0;
+                // ① 先灰一下（模拟 C# 的强制重绘效果，可省略）
+                cells[i].style.backgroundColor = "lightgray";
+                // 更新格子文本：号码 + 生肖 + 累计值 + 本次增量
+                cells[i].innerHTML = `${(i + 1).toString().padStart(2, "0")} ${animals[i % 12]}<br>${m.Values[i].toFixed(2)}<br>+${m.LastDelta[i].toFixed(2)}`;
+                // 高亮本次增量
+                cells[i].style.backgroundColor = changed ? "lightgreen" : "lightyellow";
+            }
+            // 更新总数文本框
+            txtCurrentTotal.value = m.CurrentSum.toFixed(2);
+            txtAllTotal.value = m.TotalSum.toFixed(2);
+            RuleTemp.value = m.HisRuleText;
+            showArrayTable(m.Values);
+            WinPrizeDisplay();
+        }
+
+        refreshUI();
+        //按键高亮功能
+        function highlightButton(btn) {
+            // 先恢复普通颜色
+            btnNewao.style.backgroundColor = "";
+            btnOldao.style.backgroundColor = "";
+            btnXianggang.style.backgroundColor = "";
+            // 高亮当前按钮
+            btn.style.backgroundColor = "lightblue";
+        }
+
+        //三个将池切换 按键
+        const btnNewao = document.getElementById("btnNewao");
+        const btnOldao = document.getElementById("btnOldao");
+        const btnXianggang = document.getElementById("btnXianggang");
+        // 切换模式按钮事件
+        btnNewao.onclick = () => {
+            CurrentMode = FuncMode.Newao;
+            highlightButton(btnNewao);
+            refreshUI();
+        };
+        btnOldao.onclick = () => {
+            CurrentMode = FuncMode.Oldao;
+            highlightButton(btnOldao);
+            refreshUI();
+        };
+        btnXianggang.onclick = () => {
+            CurrentMode = FuncMode.Xianggang;
+            highlightButton(btnXianggang);
+            refreshUI();
+        };
+        highlightButton(btnNewao);
+        //-----执行按键----------
+        // btnRun 逻辑
+        document.getElementById("btnRun").onclick = () => {
+            const currentSum = module[CurrentMode * ModeDataCNT].CurrentSum;
+
+            if (currentSum !== 0) {
+                showConfirm("上一次操作总数未纳入，是否确定要纳入？", (result) => {
+                    if (result) {
+                        doAddToTotal();
+                        runRuleProcessing();
+                    }
+                    // 如果取消，不做任何事
+                });
+            } else {
+                runRuleProcessing();
+            }
+        };
+        //// 单独封装规则处理逻辑
+        //function runRuleProcessing() {
+        //    // 解析多行规则
+        //    const text = txtRule.value.trim();
+        //    switch (CurrentMode) {
+        //        case FuncMode.Newao:
+        //            break;
+        //        case FuncMode.Oldao:
+        //            if (!text.includes("老")) {
+        //                showAlert("这不是老澳的数据噢!");
+        //                return;
+        //            }
+        //            break;
+        //        case FuncMode.Xianggang:
+        //            if (!(text.includes("港") || text.includes("香"))) {
+        //                showAlert("这不是香港的数据噢!");
+        //                return;
+        //            }
+        //            break;
+        //    }
+        //    // 执行 undo（最近5条数据）
+        //    for (let i = (CurrentMode + 1) * ModeDataCNT - 1; i > (CurrentMode + 1) * ModeDataCNT - 1 - 5; i--) {
+        //        module[i].undo(module[i - 1]);
+        //        console.log(`${i - 1} 复制到 ${i}`);
+        //    }
+        //    const currentModule = module[CurrentMode * ModeDataCNT];
+        //    currentModule.HisRuleText = text;
+
+        //    const lines = text.split(/[\r\n,，]+/);
+        //    let hasValidRule = false;
+        //    const historyRecords = [];
+
+        //    lines.forEach(line => {
+        //        const trimmed = line.trim();
+        //        if (!trimmed) return;
+
+        //        const rule = parseLine(trimmed);
+        //        if (rule) {
+        //            hasValidRule = true;
+
+        //            rule.nums.forEach(n => {
+        //                //const n = item.num;
+        //                //const val = item.value;
+        //                if (n >= 1 && n <= 49) {
+        //                    const i = n - 1;
+        //                    currentModule.Values[i] += rule.value;
+        //                    currentModule.LastDelta[i] += rule.value;
+        //                    currentModule.CurrentSum += rule.value;
+        //                }
+        //            });
+
+        //            console.log("规则:", trimmed, rule);
+        //            console.log("当前Values:", currentModule.Values);
+        //            console.log("本次增量:", currentModule.LastDelta);
+        //            console.log("本次总数:", currentModule.CurrentSum);
+
+        //            historyRecords.push({ line: trimmed, nums: rule.nums, value: rule.value });
+        //        }
+        //    });
+
+        //    if (!hasValidRule) {
+        //        showAlert("规则格式错误，例如：1 2 3 各 10 或 鼠龙蛇各5");
+        //        return;
+        //    }
+
+        //    // 刷新界面
+        //    refreshUI();
+
+        //    // 更新历史记录面板
+        //    historyRecords.forEach(r => addHistory(r.line, r.nums, r.value));
+
+        //    // 自动保存
+        //    saveModule();
+        //}
+
+        // 单独封装规则处理逻辑
+        function runRuleProcessing() {
+            // 解析多行规则
+            const text = txtRule.value.trim();
+            switch (CurrentMode) {
+                case FuncMode.Newao:
+                    break;
+                case FuncMode.Oldao:
+                    if (!text.includes("老")) {
+                        showAlert("这不是老澳的数据噢!");
+                        return;
+                    }
+                    break;
+                case FuncMode.Xianggang:
+                    if (!(text.includes("港") || text.includes("香"))) {
+                        showAlert("这不是香港的数据噢!");
+                        return;
+                    }
+                    break;
+            }
+            // 执行 undo（最近5条数据）
+            for (let i = (CurrentMode + 1) * ModeDataCNT - 1; i > (CurrentMode + 1) * ModeDataCNT - 1 - 5; i--) {
+                module[i].undo(module[i - 1]);
+/*                console.log(`${i - 1} 复制到 ${i}`);*/
+            }
+            const currentModule = module[CurrentMode * ModeDataCNT];
+            currentModule.HisRuleText = text;
+
+            let hasValidRule = false;
+            const historyRecords = [];
+
+            // 改为按 "各+数字" 拆分整段文本，不依赖换行或逗号
+  //          let cleanText = text.replace(/\r?\n/g, "").replace(/\s+/g, "");
+            const regex = /(.+?)[各个哥下包][^\r\n]*?(\d+(\.\d+)?)/gs;
+            let match;
+            RuleIndexNum = 1;
+
+            while ((match = regex.exec(text)) !== null) {
+                let trimmed = match[0].trim(); // 整条规则文本
+                trimmed = trimmed.replace(/\r?\n/g, "."); // 🔹 将换行替换为 .
+                //console.log(`第${index}条规则:`, trimmed);
+                //index++;
+                // 解析规则，生成 nums 数组和 value
+                const rule = parseLine(trimmed); // 你原来的 parseLine 函数可以继续用
+                if (rule) {
+                    hasValidRule = true;
+
+                    if (rule.type === "特码") {
+                        //console.log("特码解析");
+                        // 更新模块数据
+                        rule.nums.forEach(n => {
+                            if (n >= 1 && n <= 49) {
+                                const i = n - 1;
+                                currentModule.Values[i] += rule.value;
+                                currentModule.LastDelta[i] += rule.value;
+                                currentModule.CurrentSum += rule.value;
+                            }
+                        });
+                    }
+
+                    if (rule.type === "包特码") {
+                        //console.log("包特码玩法");
+                        rule.nums.forEach(n => {
+                            let num = n;
+                            let val = rule.value;
+                            if (n > 100000) {
+                                num = Math.floor(n / 100000);
+                                val = (n % 100000) / 100;
+                            }
+                            if (num >= 1 && num <= 49) {
+                                const i = num - 1;
+                                currentModule.Values[i] += val;
+                                currentModule.LastDelta[i] += val;
+                                currentModule.CurrentSum += val;
+                            }
+                        });
+                    }
+                   
+
+                    //console.log("规则:", trimmed, rule);
+                    //console.log("当前Values:", currentModule.Values);
+                    //console.log("本次增量:", currentModule.LastDelta);
+                    //console.log("本次总数:", currentModule.CurrentSum);
+
+                    // 保存历史记录
+                    historyRecords.push({ line: trimmed, nums: rule.nums, value: rule.value });
+                }
+            }
+
+            if (!hasValidRule) {
+                showAlert("规则格式错误，例如：1 2 3 各 10 或 鼠龙蛇各5");
+                return;
+            }
+
+            // 刷新界面
+            refreshUI();
+
+            // 更新历史记录面板
+            historyRecords.forEach(r => addHistory(r.line, r.nums, r.value));
+
+            // 自动保存
+            saveModule();
+        }
+        // 加入历史记录
+        function addHistory(ruleText, nums, value) {
+            const li = document.createElement("li");
+            li.textContent = `${new Date().toLocaleTimeString()} | ${ruleText} | ${nums.join(",")} | +${value}`;
+            historyList.appendChild(li);
+            historyList.scrollTop = historyList.scrollHeight;
+        }
+
+
+        // ------------------ 普通数字规则 ------------------
+        function parseListRule(text) {
+            text = text.replace(/特|码|号|特|新|老|澳|门|香|港|：|鼠|牛|虎|兔|龙|蛇|马|羊|猴|鸡|狗|猪/g, "").trim();
+            if (!text) return [];
+
+            // text 已经是“个前面的文本”
+            const parts = text.match(/\d+/g) || [];  // 提取所有数字
+            const list = parts
+                .map(p => parseInt(p.trim()))       // 转成整数
+                .filter(n => !isNaN(n) && n >= 1 && n <= 49); // 过滤 1~49
+            return list;
+        }
+        // ------------------ 动物规则 ------------------
+        function parseAnimalRule(text) {
+            let list = [];
+            let hasAnimal = false;
+            animals.forEach((a, i) => {
+                if (text.includes(a)) {
+                    hasAnimal = true;
+                    // 每出现一次都加
+                    let count = 0;
+                    let index = 0;
+                    while ((index = text.indexOf(a, index)) !== -1) {
+                        count++;
+                        index += a.length;
+                    }
+                    for (let c = 0; c < count; c++) {
+                        for (let n = i + 1; n <= 49; n += 12) {
+                            list.push(n);
+                        }
+                    }
+                }
+            });
+            return hasAnimal ? list : [];
+        }
+        function distributeByAnimal(text, total) {
+            let list = [];          // 用来存放结果对象 { num, value }
+            let hasAnimal = false;
+
+            animals.forEach((a, i) => {
+                if (text.includes(a)) {
+                    hasAnimal = true;
+
+                    // 统计生肖在文本中出现次数 (1 13 25 37 49)
+                    let count = 0;
+                    let index = 0;
+                    //i=11   0-11
+                    for (let j = 1; j <= 49; j++) {
+                        let r = j % 12;
+                        if (r === 0) r = 12; // 余数0当作12
+                        if (r === i + 1) {
+                            count++;
+                        }
+                    }
+                    // 每出现一次，平分 total
+                    let perUnit = total / count;
+                    console.log(`count = ${count}`);
+                    console.log(`perUnit = ${perUnit}`);
+                    // 获取该生肖对应数字序列
+
+                        for (let n = i + 1; n <= 49; n += 12) {
+                            const encoded = n * 100000 + Math.round(perUnit * 100);
+                            list.push(encoded);
+                        }
+
+                }
+            });
+
+            return hasAnimal ? list : [];
+        }
+       /*// ------------------ 动物规则 ------------------*/
+        function parseHeadRule(text) {
+            if (!text.includes("头")) return [];
+            text = text.replace(/头/g, "");
+            const parts = text.split(/[-.\s,]+/);
+            const heads = [];
+            parts.forEach(p => {
+                for (let c of p.trim()) {
+                    if (/\d/.test(c)) {
+                        let digit = parseInt(c);
+                        if (digit <= 4) heads.push(digit);
+                    }
+                }
+            });
+            const result = [];
+            heads.forEach(h => {
+                for (let i = 1; i <= 49; i++) {
+                    if (Math.floor(i / 10) === h) result.push(i);
+                }
+            });
+            return result;
+        }
+
+        // ------------------ 尾规则 ------------------
+        function parseTailRule(text) {
+            if (!text.includes("尾")) return [];
+            text = text.replace(/尾/g, "");
+            const parts = text.split(/[-.\s,]+/);
+            const tails = [];
+            parts.forEach(p => {
+                for (let c of p.trim()) {
+                    if (/\d/.test(c)) {
+                        let digit = parseInt(c);
+                        if (digit <= 9) tails.push(digit);
+                    }
+                }
+            });
+            const result = [];
+            tails.forEach(h => {
+                for (let i = 0; i <= 4; i++) {
+                    let num = i * 10 + h;
+                    if (num >= 1 && num <= 49) result.push(num);
+                }
+            });
+            return result;
+        }
+
+        // ------------------ 波色规则 ------------------
+        function parseWaveRule(text) {
+            if (!text.includes("红波") && !text.includes("蓝波") && !text.includes("绿波")) return [];
+            const list = [];
+            const regex = /(红波|蓝波|绿波)(单|双)?/g;
+            let match;
+            while (match = regex.exec(text)) {
+                let wave = match[1];
+                let ds = match[2] || "";
+                let nums;
+                switch (wave) {
+                    case "红波": nums = [...红波]; break;
+                    case "蓝波": nums = [...蓝波]; break;
+                    case "绿波": nums = [...绿波]; break;
+                    default: nums = []; break;
+                }
+                if (ds === "单") nums = nums.filter(n => n % 2 === 1);
+                else if (ds === "双") nums = nums.filter(n => n % 2 === 0);
+                list.push(...nums);
+            }
+            return [...new Set(list)];
+        }
+        /*
+            类型:1    特码
+            类型:2    包特码        
+        */
+        // ------------------ 主解析函数 ------------------
+        function parseLine(line, type = null) {
+            let newLine;
+            line = line.trim();
+            const keywords = ["各包", "下包", "哥包", "个包", "包", "各", "下", "哥", "个"];
+            const keywordsTeNum = ["包", "各包", "下包", "哥包", "个包", "各", "下", "哥", "个"];
+            if (!keywords.some(k => line.includes(k))) {
+
+                return null;
+            }
+            const regexKeyword = new RegExp(keywords.join("|"));
+            const keywordMatch = line.match(regexKeyword);
+            if (!keywordMatch) {
+                console.log("没有关键字");
+            } else {
+                const key = keywordMatch[0]; // 匹配到的关键字
+                const parts = line.split(key);
+                const left = parts[0];       // 个前面的文本
+                const after = parts.slice(1).join(""); // 个后面的文本
+                // 找到第一个数字（整数或浮点数）
+                const numMatch = after.match(/(\d+(\.\d+)?)/);
+                const rightNum = numMatch ? numMatch[0] : "";
+                // 拼接成新的 line
+                 newLine = left + key + rightNum;
+                console.log(`第${RuleIndexNum}条规则:`, newLine);
+                RuleIndexNum++;
+            }
+
+          
+            if (keywordsTeNum.some(k => newLine.includes(k))) {
+              
+                const keywordsTeNumSingle = ["各", "下",  "哥", "个"];
+                const keywordsTeNumAll = ["各包", "哥包", "个包","包",];
+
+                if (keywordsTeNumAll.some(k => newLine.includes(k))) {
+                    console.log("进入各包判断"); // 🔹 顺便打印 newLine
+                    type = "包特码";
+   
+                    let parts = newLine.split(new RegExp(keywordsTeNumAll.join("|")));
+                    if (parts.length !== 2) return null;
+                    const left = parts[0].trim();
+                    const right = parseFloat(parts[1]);
+                    if (isNaN(right) || right === 0) return null;
+                    let numbers = [];
+                    // 1. 动物规则
+                    numbers.push(...distributeByAnimal(left, right));
+                    return { nums: numbers, value: right, type: type };
+                } else if (keywordsTeNumSingle.some(k => newLine.includes(k))) {
+                    console.log("进入各判断"); // 🔹 顺便打印 newLine
+                    type = "特码";
+
+                    let parts = newLine.split(new RegExp(keywordsTeNumSingle.join("|")));
+                    if (parts.length !== 2) return null;
+                    const left = parts[0].trim();
+
+                    const right = parseFloat(parts[1]);
+                    if (isNaN(right) || right === 0) return null;
+                    let numbers = [];
+                    // 1. 动物规则
+                    numbers.push(...parseAnimalRule(left));
+                    // 2. 头规则（优先）
+                    let temp = parseHeadRule(left);
+                    if (temp.length > 0) {
+                        numbers.push(...temp);
+
+                        return { nums: numbers, value: right, type: type };
+                    }
+                    // 3. 尾规则（优先）
+                    temp = parseTailRule(left);
+                    if (temp.length > 0) {
+                        numbers.push(...temp);
+                        return { nums: numbers, value: right, type: type };
+                    }
+                    // 4. 波色规则
+                    numbers.push(...parseWaveRule(left));
+                    // 5. 普通数字规则
+                    numbers.push(...parseListRule(left));
+                    return { nums: numbers, value: right, type: type };
+                }
+            }
+            
+
+            
+            
+        }
+        //------------------ 弹窗函数 ------------------
+        // 点击遮罩空白处不关闭
+        function showConfirm(message, callback) {
+            const modal = document.getElementById("customConfirm");
+            const text = document.getElementById("confirmText");
+            const okBtn = document.getElementById("confirmOk");
+            const cancelBtn = document.getElementById("confirmCancel");
+
+            text.textContent = message;
+            modal.style.display = "flex";
+
+            const buttons = [okBtn, cancelBtn];
+            let focusIndex = 0; // 0=确定, 1=取消
+
+            // 🔹 设置焦点高亮
+            function setFocus(index) {
+                focusIndex = index;
+                buttons.forEach((btn, i) => {
+                    btn.classList.toggle("highlight", i === focusIndex);
+                });
+            }
+
+            function cleanup() {
+                modal.style.display = "none";
+                okBtn.removeEventListener("click", onOk);
+                cancelBtn.removeEventListener("click", onCancel);
+                document.removeEventListener("keydown", onKeydown);
+                buttons.forEach(btn => btn.classList.remove("highlight"));
+            }
+
+            function onOk() {
+                cleanup();
+                callback(true);
+            }
+
+            function onCancel() {
+                cleanup();
+                callback(false);
+            }
+
+            function onKeydown(e) {
+                switch (e.code) {
+                    case "ArrowLeft":
+                    case "ArrowRight":
+                        e.preventDefault();
+                        setFocus(focusIndex === 0 ? 1 : 0); // 切换左右焦点
+                        break;
+                    case "Enter":        // 主键盘回车
+                    case "NumpadEnter":  // 数字键盘回车
+                    case "Space":
+                        e.preventDefault();
+                        if (focusIndex === 0) onOk();
+                        else onCancel();
+                        break;
+                    case "Escape":
+                        e.preventDefault();
+                        onCancel();
+                        break;
+                }
+            }
+
+            // 绑定事件
+            okBtn.addEventListener("click", onOk);
+            cancelBtn.addEventListener("click", onCancel);
+            document.addEventListener("keydown", onKeydown);
+
+            // 默认焦点在“确定”
+            setFocus(0);
+        }
+        //// 点击遮罩空白处也关闭
+        //function showConfirm(message, callback) {
+        //    const modal = document.getElementById("customConfirm");
+        //    const text = document.getElementById("confirmText");
+        //    text.textContent = message;
+        //    modal.style.display = "flex";
+
+        //    const okBtn = document.getElementById("confirmOk");
+        //    const cancelBtn = document.getElementById("confirmCancel");
+
+        //    function cleanup() {
+        //        modal.style.display = "none";
+        //        okBtn.removeEventListener("click", onOk);
+        //        cancelBtn.removeEventListener("click", onCancel);
+        //    }
+
+        //    function onOk() { cleanup(); callback(true); }
+        //    function onCancel() { cleanup(); callback(false); }
+
+        //    okBtn.addEventListener("click", onOk);
+        //    cancelBtn.addEventListener("click", onCancel);
+
+        //    // 点击遮罩空白处也关闭
+        //    modal.addEventListener("click", e => {
+        //        if (e.target === modal) cleanup();
+        //    });
+        //}
+
+        //------------------ 弹窗函数 ------------------
+        function showAlert(message) {
+            const modal = document.getElementById("customAlert");
+            const text = document.getElementById("alertText");
+            text.textContent = message;
+            modal.style.display = "flex";
+            const okBtn = document.getElementById("alertOk");
+            function cleanup() { modal.style.display = "none"; okBtn.removeEventListener("click", onOk); }
+            function onOk() { cleanup(); }
+            okBtn.addEventListener("click", onOk);
+            modal.addEventListener("click", e => { if (e.target === modal) cleanup(); });
+        }
+
+        // -----纳入总数按键----------累加到总数
+        function doAddToTotal() {
+            const m = module[CurrentMode * ModeDataCNT];
+
+            // 1. 累加本次总数
+            m.TureSum = (m.TureSum || 0) + m.CurrentSum;
+
+            // 2. 数据校验
+            const sum = m.Values.reduce((acc, v) => acc + Number(v || 0), 0);
+
+            // 允许误差
+            const EPS = 1e-6;
+
+            if (Math.abs(sum - m.TureSum) > EPS) {
+                alert("数据校验错误");
+                console.log("Values算出来:", sum, "累计值:", m.TureSum);
+            }
+           
+            // 3. 更新总数
+            m.TotalSum = m.TureSum + (m.ErrorSum || 0);
+
+            // 4. 清空本次增量
+            m.LastDelta.fill(0);
+            m.CurrentSum = 0;
+
+            // 5. 刷新界面
+            refreshUI();
+            saveModule(); // 自动保存
+        }
+        document.getElementById("btnAddToTotal").onclick = doAddToTotal;
+        //-----撤回按键----------
+        document.getElementById("btnUndo").onclick = () => {
+            for (let i = (CurrentMode) * ModeDataCNT; i < (CurrentMode + 1) * ModeDataCNT - 1; i++) {
+                module[i].undo(module[i + 1]);
+                console.log(`${i + 1} 复制到 ${i}`);
+            }
+            refreshUI();
+            saveModule(); // 自动保存
+        };
+        // -----粘贴按键----------
+        document.getElementById("btnCleartxtRule").onclick = async function () {
+            try {
+                const text = await navigator.clipboard.readText();
+                document.getElementById("txtRule").value = text;
+
+                // 复制成功后直接触发 btnRun
+                document.getElementById("btnRun").click();
+
+            } catch (err) {
+                alert("读取剪贴板失败，请确认是通过按钮点击触发，并且在浏览器中打开");
+                console.log(err);
+            }
+        };
+
+        // -----显示数组 新澳老澳香港数值大小排序----------
+        function showArrayTable() {
+            const newao = module[FuncMode.Newao * ModeDataCNT];
+            const oldao = module[FuncMode.Oldao * ModeDataCNT];
+            const hk = module[FuncMode.Xianggang * ModeDataCNT];
+            if (!newao || !oldao || !hk) return;
+
+            // 新澳排序
+            let listNew = newao.Values.map((v, i) => ({
+                index: i + 1,
+                value: v
+            }));
+            listNew.sort((a, b) => b.value - a.value);
+            listNew = listNew.slice(0, 10);
+
+            // 老澳排序
+            let listOld = oldao.Values.map((v, i) => ({
+                index: i + 1,
+                value: v
+            }));
+            listOld.sort((a, b) => b.value - a.value);
+            listOld = listOld.slice(0, 10);
+
+            // 香港排序
+            let listHK = hk.Values.map((v, i) => ({
+                index: i + 1,
+                value: v
+            }));
+            listHK.sort((a, b) => b.value - a.value);
+            listHK = listHK.slice(0, 10);
+
+            // 渲染表格（按行拼在一起）
+            let tbody = document.querySelector("#dataTable tbody");
+            tbody.innerHTML = "";
+
+            for (let i = 0; i < 10; i++) {
+                let tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td class="col-new">${listNew[i]?.index ?? ""}</td>
+                    <td class="col-new">${listNew[i]?.value?.toFixed(2) ?? ""}</td>
+
+                    <td class="col-old">${listOld[i]?.index ?? ""}</td>
+                    <td class="col-old">${listOld[i]?.value?.toFixed(2) ?? ""}</td>
+
+                    <td class="col-hk">${listHK[i]?.index ?? ""}</td>
+                    <td class="col-hk">${listHK[i]?.value?.toFixed(2) ?? ""}</td>
+                `;
+                tbody.appendChild(tr);
+            }
+        }
+
+        // -----阈值导出按键----------
+        const btnExport = document.getElementById("btnExport");
+        const thresholdInput = document.getElementById("thresholdInput");
+        const upOut = document.getElementById("Threshold_UpOut");
+        const upOut1 = document.getElementById("Threshold_UpOut1");
+        btnExport.onclick = function () {
+            const threshold = parseInt(thresholdInput.value) || 0; // 获取阈值
+            console.log("当前阈值是:", threshold);
+            const item = module[CurrentMode * ModeDataCNT];
+
+            const indexList = Array.from({ length: 49 }, (_, i) => i);
+            indexList.sort((a, b) => item.Values[b] - item.Values[a]);
+            const outList = [];
+            const outList2 = [];
+
+            let text = "";
+            switch (CurrentMode) {
+                case FuncMode.Newao:
+                    text = "新澳特码:";
+                    break;
+                case FuncMode.Oldao:
+                    text = "老澳特码:";
+                    break;
+                case FuncMode.Xianggang:
+                    text = "香港特码:";
+                    break;
+                default:
+                    text = "未知模式";
+            }
+
+            outList.push(text);
+            outList2.push(text);
+            let totalValue = 0;
+
+            let currentGroup = [];  // 存当前连续索引
+            let prevExceed = null;
+
+            for (let i = 0; i < 49; i++) {
+                const idx = indexList[i];
+                const value = Math.floor(item.Values[idx]);
+
+                if (value > threshold) {
+                    const exceed = value - threshold;
+                    totalValue += exceed;
+
+                    if (prevExceed === null || exceed !== prevExceed) {
+                        // 输出前一组
+                        if (currentGroup.length > 0) {
+                            outList.push(currentGroup.map(x => x + 1).join("-") + `各${prevExceed}`);
+                            outList2.push(currentGroup.map(x => x + 1).join("-") + `各${-prevExceed}`);
+                        }
+                        // 开始新组
+                        currentGroup = [idx];
+                        prevExceed = exceed;
+                    } else {
+                        // 同一个 exceed 值，继续加入当前组
+                        currentGroup.push(idx);
+                    }
+                }
+            }
+
+            // 输出最后一组
+            if (currentGroup.length > 0) {
+                outList.push(currentGroup.map(x => x + 1).join("-") + `各${prevExceed}`);
+                outList2.push(currentGroup.map(x => x + 1).join("-") + `各${-prevExceed}`);
+            }
+
+            // 输出总值
+            outList.push(`总:${totalValue}`);
+            outList2.push(`总:${totalValue}`);
+
+            // 写入 textarea
+            upOut.value = outList.join("\n");
+            upOut1.value = outList2.join("\n");
+
+
+        };
+        // -----复制按键  复制导出得数据----------
+        const btnCopy = document.getElementById("btnCopy");
+        btnCopy.onclick = function () {
+            navigator.clipboard.writeText(upOut.value);
+            alert("已复制: " + upOut.value);
+        };
+          // -----导入按键  导入到 txtRule----------
+        const btnImport = document.getElementById("btnImport");
+        btnImport.onclick = function () {
+            txtRule.value = upOut1.value;
+        };
+        // -----开奖按键----------
+        function draw() {
+            // 获取输入中奖号码
+            const WinNumtext1 = document.getElementById("WinNum1");
+            const WinNumtext2 = document.getElementById("WinNum2");
+            const WinNumtext3 = document.getElementById("WinNum3");
+            // 这里用 try/catch 防止输入非数字
+            let WinNum = parseInt(WinNumtext1.value) || 0;
+            let WinNum1 = parseInt(WinNumtext2.value) || 0;
+            let WinNum2 = parseInt(WinNumtext3.value) || 0;
+
+            module[FuncMode.Newao * ModeDataCNT].WinPrizeNum = WinNum;
+            module[FuncMode.Oldao * ModeDataCNT].WinPrizeNum = WinNum1;
+            module[FuncMode.Xianggang * ModeDataCNT].WinPrizeNum = WinNum2;
+            // 计算每个模式中奖
+            [FuncMode.Newao * ModeDataCNT, FuncMode.Oldao * ModeDataCNT, FuncMode.Xianggang * ModeDataCNT].forEach(mode => {
+                const item = module[mode];
+                const WinPrizeNum = item.WinPrizeNum;
+                let WinPrizeSise = 0;
+                if (WinPrizeNum) {
+                    WinPrizeSise = item.Values[WinPrizeNum - 1];
+                } else if (WinPrizeNum == 0) {
+                    WinPrizeSise = 0;
+                }
+
+                const WinPrizeSum = WinPrizeSise * 47;
+                const water = item.TotalSum * -0.04;
+                const WinFinallyMoney = item.TotalSum + water - WinPrizeSum;
+
+                item.WinPrizeSise = WinPrizeSise;
+                item.WinPrizeSum = WinPrizeSum;
+                item.water = water;
+                item.WinFinallyMoney = WinFinallyMoney;
+            });
+
+            WinPrizeDisplay(); // 更新表格显示
+            saveModule(); // 自动保存
+        }
+        //------开奖显示----------
+        function WinPrizeDisplay() {
+
+            const WinNumtext1 = document.getElementById("WinNum1");
+            const WinNumtext2 = document.getElementById("WinNum2");
+            const WinNumtext3 = document.getElementById("WinNum3");
+
+            // 这里用 try/catch 防止输入非数字
+            let WinNum = parseInt(WinNumtext1.value) || 0;
+            let WinNum1 = parseInt(WinNumtext2.value) || 0;
+            let WinNum2 = parseInt(WinNumtext3.value) || 0;
+
+            module[FuncMode.Newao * ModeDataCNT].WinPrizeNum = WinNum;
+            module[FuncMode.Oldao * ModeDataCNT].WinPrizeNum = WinNum1;
+            module[FuncMode.Xianggang * ModeDataCNT].WinPrizeNum = WinNum2;
+
+            // 计算每个模式中奖
+            [FuncMode.Newao * ModeDataCNT, FuncMode.Oldao * ModeDataCNT, FuncMode.Xianggang * ModeDataCNT].forEach(mode => {
+                const item = module[mode];
+                const WinPrizeNum = item.WinPrizeNum;
+                let WinPrizeSise = 0;
+                if (WinPrizeNum) {
+                    WinPrizeSise = item.Values[WinPrizeNum - 1];
+                } else if (WinPrizeNum == 0) {
+                    WinPrizeSise = 0;
+                }
+                const WinPrizeSum = WinPrizeSise * 47;
+                const water = item.TotalSum * -0.04;
+                const WinFinallyMoney = item.TotalSum + water - WinPrizeSum;
+
+                item.WinPrizeSise = WinPrizeSise;
+                item.WinPrizeSum = WinPrizeSum;
+                item.water = water;
+                item.WinFinallyMoney = WinFinallyMoney;
+            });
+
+
+
+            const newao = module[FuncMode.Newao * ModeDataCNT];
+            const oldao = module[FuncMode.Oldao * ModeDataCNT];
+            const xianggang = module[FuncMode.Xianggang * ModeDataCNT];
+
+            document.getElementById("WinNum1").value = newao.WinPrizeNum;
+            document.getElementById("WinSize1").value = newao.WinPrizeSise.toFixed(2);
+            document.getElementById("WinPrizeSum1").value = newao.WinPrizeSum.toFixed(2);
+            document.getElementById("WinTotal1").value = newao.TotalSum.toFixed(2);
+            document.getElementById("WinWater1").value = newao.water.toFixed(2);
+            document.getElementById("WinMoney1").value = newao.WinFinallyMoney.toFixed(2);
+
+            document.getElementById("WinNum2").value = oldao.WinPrizeNum;
+            document.getElementById("WinSize2").value = oldao.WinPrizeSise.toFixed(2);
+            document.getElementById("WinPrizeSum2").value = oldao.WinPrizeSum.toFixed(2);
+            document.getElementById("WinTotal2").value = oldao.TotalSum.toFixed(2);
+            document.getElementById("WinWater2").value = oldao.water.toFixed(2);
+            document.getElementById("WinMoney2").value = oldao.WinFinallyMoney.toFixed(2);
+
+            document.getElementById("WinNum3").value = xianggang.WinPrizeNum;
+            document.getElementById("WinSize3").value = xianggang.WinPrizeSise.toFixed(2);
+            document.getElementById("WinPrizeSum3").value = xianggang.WinPrizeSum.toFixed(2);
+            document.getElementById("WinTotal3").value = xianggang.TotalSum.toFixed(2);
+            document.getElementById("WinWater3").value = xianggang.water.toFixed(2);
+            document.getElementById("WinMoney3").value = xianggang.WinFinallyMoney.toFixed(2);
+
+            // 总数
+            document.getElementById("AllFinallyWinPrizeSise").value = (newao.WinPrizeSise + oldao.WinPrizeSise + xianggang.WinPrizeSise).toFixed(2);
+            document.getElementById("AllFinallyWinPrizeSum").value = (newao.WinPrizeSum + oldao.WinPrizeSum + xianggang.WinPrizeSum).toFixed(2);
+            document.getElementById("AllFinallyWinTotal").value = (newao.TotalSum + oldao.TotalSum + xianggang.TotalSum).toFixed(2);
+            document.getElementById("AllFinallywater").value = (newao.water + oldao.water + xianggang.water).toFixed(2);
+            document.getElementById("AllFinallyWinFinallyMoney").value = (newao.WinFinallyMoney + oldao.WinFinallyMoney + xianggang.WinFinallyMoney).toFixed(2);
+        }
+        //------清空当前按钮----------
+        document.getElementById("btnClearCurrent").addEventListener("click", () => {
+            showConfirm("确认清空这个界面的数据吗？", (result) => {
+                if (!result) return;  // 用户取消
+                const start = CurrentMode * ModeDataCNT;
+                const end = start + ModeDataCNT;
+                for (let i = start; i < end; i++) module[i].clear();
+                refreshUI();
+                document.getElementById("txtRule").value = "";
+                saveModule();
+            });
+        });
+        //------清空所有按钮----------
+        document.getElementById("btnClearAll").addEventListener("click", () => {
+            showConfirm("确认清空所有数据吗？", (result) => {
+                if (!result) return;  // 用户取消
+                for (let i = 0; i < FuncModeDataCNT; i++) module[i].clear();
+                refreshUI();
+                document.getElementById("txtRule").value = "";
+                saveModule();
+            });
+        });
+
+        //------获取开奖按钮----------
+        const sources = {
+            "新澳": "https://kj6.kkj.app:1888/data/v_am.json",
+            "老澳": "https://kj6.kkj.app:1888/data/v_oldam.json",
+            "香港": "https://kj6.kkj.app:1888/data/v_xg.json"
+        };
+        const btn = document.getElementById("btn");
+        const resultDiv = document.getElementById("result");
+        function getColorClass(num) {
+            num = parseInt(num);
+
+            if (红波.includes(num)) return "red";
+            if (蓝波.includes(num)) return "blue";
+            if (绿波.includes(num)) return "green";
+
+            return ""; // 万一不在任何波里
+        }
+        function getAnimal(num) {
+            num = parseInt(num);
+            return animals[(num - 1) % 12];
+        }
+        btn.addEventListener("click", async () => {
+            resultDiv.innerHTML = "";
+
+            for (let name in sources) {
+                let ts = Date.now();
+                let realUrl = sources[name] + "?t=" + ts;
+                let url = "https://corsproxy.io/?" + realUrl;
+
+                let row = document.createElement("div");
+                row.className = "row";
+
+                let label = document.createElement("span");
+                label.className = "label";
+                label.textContent = name + "：";
+                row.appendChild(label);
+
+                try {
+                    let res = await fetch(url);
+                    let json = await res.json();
+
+                    let data = json.Data;
+                    let nums = [];
+                    for (let k in data) nums.push(data[k].number);
+
+                    let te = nums.pop();
+                    // === 把特码写进对应输入框 ===
+                    if (name === "新澳") {
+                        document.getElementById("WinNum1").value = String(te).padStart(2, "0");
+                    }
+                    if (name === "老澳") {
+                        document.getElementById("WinNum2").value = String(te).padStart(2, "0");
+                    }
+                    if (name === "香港") {
+                        document.getElementById("WinNum3").value = String(te).padStart(2, "0");
+                    }
+                   
+                    nums.forEach(n => {
+                        let box = document.createElement("div");
+                        box.className = "num " + getColorClass(n);
+
+                        let numDiv = document.createElement("div");
+                        numDiv.textContent = String(n).padStart(2, "0");
+
+                        let animalDiv = document.createElement("div");
+                        animalDiv.textContent = getAnimal(n);
+                        animalDiv.style.fontSize = "12px";
+
+                        box.appendChild(numDiv);
+                        box.appendChild(animalDiv);
+
+                        row.appendChild(box);
+                    });
+
+                    let plus = document.createElement("span");
+                    plus.className = "plus";
+                    plus.textContent = "+";
+                    row.appendChild(plus);
+
+                    let teBox = document.createElement("div");
+                    teBox.className = "num " + getColorClass(te);
+
+                    let teNumDiv = document.createElement("div");
+                    teNumDiv.textContent = String(te).padStart(2, "0");
+
+                    let teAnimalDiv = document.createElement("div");
+                    teAnimalDiv.textContent = getAnimal(te);
+                    teAnimalDiv.style.fontSize = "12px";
+
+                    teBox.appendChild(teNumDiv);
+                    teBox.appendChild(teAnimalDiv);
+
+                    row.appendChild(teBox);
+                } catch (err) {
+                    row.textContent = name + " 获取失败：" + err;
+                }
+
+                resultDiv.appendChild(row);
+            }
+        });
+
+
+    </script>
+
+</body>
+</html>
