@@ -1,6 +1,9 @@
 ﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+    <link rel="apple-touch-icon" href="icon.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="暴富V2.0">
     <meta charset="UTF-8">
     <title>暴富！发发发！</title>
     <style>
@@ -86,7 +89,7 @@
             height: 20px;
         }
 
-        
+
 
         /* 复制 / 导入 */
         .copyBtn,
@@ -96,7 +99,7 @@
         }
 
 
-        
+
         .ruleBox {
             display: grid;
             grid-template-columns: 200px 60px; /* 左输入框，右按钮 */
@@ -114,10 +117,11 @@
             flex-direction: column;
             gap: 5px;
         }
-        .rightBtns button {
-            width: 60px;
-            height: 25px;
-        }
+
+            .rightBtns button {
+                width: 60px;
+                height: 25px;
+            }
 
         /* 底部按钮横排 */
         .bottomBtns {
@@ -125,15 +129,17 @@
             display: flex;
             gap: 8px;
         }
-        .bottomBtns button {
-            width: 60px;
-            height: 25px;
-        }
+
+            .bottomBtns button {
+                width: 60px;
+                height: 25px;
+            }
         /* 单独放大 纳入总数 */
         #btnAddToTotal {
             width: 80px;
             white-space: nowrap;
         }
+
         .totalRow {
             margin-top: 0px;
             display: flex;
@@ -141,10 +147,10 @@
             gap: 8px;
         }
 
-        .totalRow input {
-            width: 65px;
-            text-align: center;
-        }
+            .totalRow input {
+                width: 65px;
+                text-align: center;
+            }
 
         /* 表格 */
         #dataTable {
@@ -153,24 +159,24 @@
             width: 270px; /* 必须 >= 所有列之和 */
         }
 
-        #dataTable th, #dataTable td {
-            border: 1px solid #666;
-            padding: 4px;
-            text-align: center;
-        }
-
-            /* 新澳 / 老澳 / 香港（放大） */
-            #dataTable th:nth-child(odd),
-            #dataTable td:nth-child(odd) {
-                width: 10px;
+            #dataTable th, #dataTable td {
+                border: 1px solid #666;
+                padding: 4px;
+                text-align: center;
             }
 
-            /* 大小（缩小） */
-            #dataTable th:nth-child(even),
-            #dataTable td:nth-child(even) {
-                width: 80px;
-            }
-            
+                /* 新澳 / 老澳 / 香港（放大） */
+                #dataTable th:nth-child(odd),
+                #dataTable td:nth-child(odd) {
+                    width: 10px;
+                }
+
+                /* 大小（缩小） */
+                #dataTable th:nth-child(even),
+                #dataTable td:nth-child(even) {
+                    width: 80px;
+                }
+
 
         /* 新澳（绿） */
         .col-new {
@@ -193,36 +199,36 @@
             grid-template-columns: 260px 0.2fr;
             gap: 20px;
         }
+
         table {
             border-collapse: collapse;
             width: 100%;
-
         }
 
         td, th {
             border: 1px solid #999;
             text-align: center;
         }
-  
+
             /* 盈利 */
-        /* 只让中奖号码的input显示边框，其它input去掉边框 */
-        td input {
-            border: none;
-            text-align: center;
-            background-color: transparent; /* 背景透明，看起来像普通文本 */
-            width: 100%;
-            box-sizing: border-box;
-        }
-        /* 中奖号码专用 */
-            td input#WinNum1,
-            td input#WinNum2,
-            td input#WinNum3,
-            td input#totalNum {
-                border: 1px solid #999;
-                background-color: #fff;
-                border-radius: 3px;
-                padding: 2px 4px;
+            /* 只让中奖号码的input显示边框，其它input去掉边框 */
+            td input {
+                border: none;
+                text-align: center;
+                background-color: transparent; /* 背景透明，看起来像普通文本 */
+                width: 100%;
+                box-sizing: border-box;
             }
+                /* 中奖号码专用 */
+                td input#WinNum1,
+                td input#WinNum2,
+                td input#WinNum3,
+                td input#totalNum {
+                    border: 1px solid #999;
+                    background-color: #fff;
+                    border-radius: 3px;
+                    padding: 2px 4px;
+                }
         /*#dataTable td, #dataTable th {
             height: 40px;*/ /* 统一行高 */
         /*}*/
@@ -282,7 +288,7 @@
             padding: 2px 5px;
         }
 
-        
+
         .modal {
             display: none;
             position: fixed;
@@ -290,12 +296,11 @@
             left: 0;
             width: 100%;
             background: rgba(0,0,0,0.5);
-
             justify-content: flex-start; /* 靠左 */
             align-items: flex-start; /* 不再垂直居中 */
 
             padding-left: 20px; /* 左边留空 */
-            padding-top:150px; /* 往下挪一点点（这里调这个值） */
+            padding-top: 150px; /* 往下挪一点点（这里调这个值） */
 
             z-index: 1000;
             box-sizing: border-box;
@@ -316,12 +321,12 @@
             margin-top: 15px;
         }
 
-        .modal-buttons button {
-            margin: 5px;
-            padding: 10px 18px;
-            font-size: 16px;
-            border-radius: 6px;
-        }
+            .modal-buttons button {
+                margin: 5px;
+                padding: 10px 18px;
+                font-size: 16px;
+                border-radius: 6px;
+            }
 
         /* ===== 开奖显示用样式 ===== */
         .row {
@@ -368,7 +373,6 @@
             margin: 0 6px;
             font-weight: bold;
         }
-
     </style>
 </head>
 <body>
