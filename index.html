@@ -414,6 +414,7 @@
                         <input type="text" id="thresholdInput" class="limitInput" value="400">
                         <button class="exportBtn" id="btnExport">导出</button>
                     </div>
+
                 </div>
 
                 <div class="rightArea">
@@ -1709,6 +1710,13 @@
             return animals[(num - 1) % 12];
         }
         btn.addEventListener("click", async () => {
+            const result = module[CurrentMode * ModeDataCNT].TotalSum / 49 + 50
+                ;
+
+            // 将计算结果写入到 input 的 value
+            document.getElementById("thresholdInput").value = result;
+
+
             resultDiv.innerHTML = "";
 
             for (let name in sources) {
