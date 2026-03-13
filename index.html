@@ -1722,7 +1722,9 @@
             for (let name in sources) {
                 let ts = Date.now();
                 let realUrl = sources[name] + "?t=" + ts;
-                let url = "https://corsproxy.io/?" + realUrl;
+
+                // 使用新的跨域代理
+                let url = "https://api.allorigins.win/raw?url=" + encodeURIComponent(realUrl);
 
                 let row = document.createElement("div");
                 row.className = "row";
