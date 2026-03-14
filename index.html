@@ -1694,6 +1694,11 @@
             "老澳": "https://kj6.kkj.app:1888/data/v_oldam.json",
             "香港": "https://kj6.kkj.app:1888/data/v_xg.json"
         };
+        const PROXIES = [
+            "https://corsproxy.io/?",
+            "https://api.allorigins.win/raw?url=",
+            "https://thingproxy.freeboard.io/fetch/"
+        ];
         const btn = document.getElementById("btn");
         const resultDiv = document.getElementById("result");
         function getColorClass(num) {
@@ -1709,22 +1714,45 @@
             num = parseInt(num);
             return animals[(num - 1) % 12];
         }
+        async function fetchWithProxy(realUrl) {
+
+            for (let proxy of PROXIES) {
+
+                try {
+
+                    let url = proxy + encodeURIComponent(realUrl);
+
+                    let res = await fetch(url, {
+                        cache: "no-store"
+                    });
+
+                    if (!res.ok) throw new Error("HTTP " + res.status);
+
+                    return res; // 成功直接返回
+
+                } catch (e) {
+
+                    console.log("代理失败:", proxy);
+
+                    continue; // 自动切换下一个
+
+                }
+            }
+
+            throw new Error("所有代理都失败");
+        }
+
         btn.addEventListener("click", async () => {
-            const result = module[CurrentMode * ModeDataCNT].TotalSum / 49 + 50
-                ;
 
-            // 将计算结果写入到 input 的 value
+            const result = module[CurrentMode * ModeDataCNT].TotalSum / 49 + 50;
+
             document.getElementById("thresholdInput").value = result;
-
-
             resultDiv.innerHTML = "";
 
             for (let name in sources) {
+
                 let ts = Date.now();
                 let realUrl = sources[name] + "?t=" + ts;
-
-                // 使用新的跨域代理
-                let url = "https://api.allorigins.win/raw?url=" + encodeURIComponent(realUrl);
 
                 let row = document.createElement("div");
                 row.className = "row";
@@ -1735,26 +1763,37 @@
                 row.appendChild(label);
 
                 try {
-                    let res = await fetch(url);
+
+                    // 🔥 使用自动代理切换
+                    let res = await fetchWithProxy(realUrl);
+
                     let json = await res.json();
 
                     let data = json.Data;
-                    let nums = [];
-                    for (let k in data) nums.push(data[k].number);
+
+                    let nums = Object.values(data).map(v => v.number);
 
                     let te = nums.pop();
-                    // === 把特码写进对应输入框 ===
+
+                    // === 写入特码输入框 ===
                     if (name === "新澳") {
-                        document.getElementById("WinNum1").value = String(te).padStart(2, "0");
+                        document.getElementById("WinNum1").value =
+                            String(te).padStart(2, "0");
                     }
+
                     if (name === "老澳") {
-                        document.getElementById("WinNum2").value = String(te).padStart(2, "0");
+                        document.getElementById("WinNum2").value =
+                            String(te).padStart(2, "0");
                     }
+
                     if (name === "香港") {
-                        document.getElementById("WinNum3").value = String(te).padStart(2, "0");
+                        document.getElementById("WinNum3").value =
+                            String(te).padStart(2, "0");
                     }
-                   
+
+                    // === 显示号码 ===
                     nums.forEach(n => {
+
                         let box = document.createElement("div");
                         box.className = "num " + getColorClass(n);
 
@@ -1771,11 +1810,13 @@
                         row.appendChild(box);
                     });
 
+                    // +
                     let plus = document.createElement("span");
                     plus.className = "plus";
                     plus.textContent = "+";
                     row.appendChild(plus);
 
+                    // 特码
                     let teBox = document.createElement("div");
                     teBox.className = "num " + getColorClass(te);
 
@@ -1790,14 +1831,17 @@
                     teBox.appendChild(teAnimalDiv);
 
                     row.appendChild(teBox);
+
                 } catch (err) {
+
                     row.textContent = name + " 获取失败：" + err;
+
                 }
 
                 resultDiv.appendChild(row);
             }
-        });
 
+        });
 
     </script>
 
